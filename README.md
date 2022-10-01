@@ -8,6 +8,6 @@
 
 4. Add your domain and local static IP (it will need to be configured manually on your router and have portfowarding set up for port 80 and 443) to haproxy.cfg in the config folder
 
-5. This repo uses docker-compose. Change all neccesary sections in docker-compose.yml (adding VPN username/passowords, adding domain API key and domain name and etc.) then cd into the repo directory in your terminal and execute '$ docker-compose up -d'
+5. This repo uses docker-compose. Change all neccesary sections in docker-compose.yml (adding NORDVPN VPN username/passowords, adding domain API key and domain name and etc.) then cd into the repo directory in your terminal and execute '$ docker-compose up -d'
 
 5. Configure Jackett, Radarr, Sonarr, qBitTorrent and Portainer accordingly via [SERVICE].[YOUR DOMAIN] urls. Default backend will be your plex server.
