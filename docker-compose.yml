@@ -1,0 +1,150 @@
+version: '3'
+services:
+  
+  #############
+  # AUTO HEAL #
+  #############
+  autoheal:
+    container_name: autoheal
+    image: willfarrell/autoheal:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=all
+    restart: always  
+    
+  ###################
+  # QBITTORRENT-VPN #
+  ###################
+  qbittorrent-vpn:
+    image: markusmcnugen/qbittorrentvpn:latest
+    container_name: "qbittorrent-vpn"
+    restart: "unless-stopped"
+    privileged: true
+    environment:
+      - "AUTOHEAL_CONTAINER_LABEL=true"
+      - "VPN_ENABLED=yes"
+      - "VPN_USERNAME=<YOUR NORDVPN VPN_USERNAME"
+      - "VPN_PASSWORD=<YOUR NORDVPN VPN_PASSWORD"
+      - "LAN_NETWORK=10.0.0.0/24"
+      - "NAME_SERVERS=1.1.1.1"
+      - "WEBUI_PORT_ENV=19091"
+    ports:
+      - 19091:19091
+      - 8999:8999
+      - 8999:8999/udp
+    volumes:
+      - "./config/qbittorrentvpn:/config:cached"
+      - "~/Downloads:/Downloads:cached"
+    healthcheck:
+      test: "ifconfig | grep ^tun0 > /dev/null"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    expose: 
+      - 19091
+  
+  ##########
+  # RADARR #
+  ##########
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Los_Angeles
+    volumes:
+      - ./config/radarr:/config
+      - <PATH TO SAVE YOUR MEDIA FILES>:<PATH TO SAVE YOUR MEDIA FILES>
+      - ~/Downloads:/Downloads
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+    expose:
+      - 7878
+
+  ##########
+  # SONARR #
+  ##########
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Los_Angeles
+    volumes:
+      - ./config/sonarr:/config
+      - <PATH TO SAVE YOUR MEDIA FILES>:<PATH TO SAVE YOUR MEDIA FILES>
+      - ~/Downloads:/Downloads
+    ports:
+      - 8989:8989
+    restart: unless-stopped    
+    expose:
+      - 8989
+
+  ###########
+  # JACKETT #
+  ###########
+  jackett:
+    image: lscr.io/linuxserver/jackett:latest
+    container_name: jackett
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Los_Angeles
+      - AUTO_UPDATE=true #optional
+    volumes:
+      - ./config/jackett:/config
+      - ~/Downloads:/downloads
+    ports:
+      - 9117:9117
+    restart: unless-stopped    
+    expose:
+      - 9117
+
+  #############
+  # PORTAINER #
+  #############
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./portainer-data:/data
+    ports:
+      - 9000:9000
+    expose:
+      - 9000
+
+  ###########
+  # HAPROXY #
+  ###########
+  haproxy:
+    image: haproxy:2.3
+    container_name: haproxy
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./config/haproxy:/usr/local/etc/haproxy
+    restart: always
+    expose:
+      - 80
+      - 443
+  ###############
+  # DDNS UPDATE #
+  ###############
+  cloudflare-ddns:
+    image: oznu/cloudflare-ddns:latest
+    container_name: cloudflare-ddns
+    restart: always
+    environment:
+      - API_KEY=<YOUR CLOUDFLARE API KEY>
+      - ZONE=<YOUR DOMAIN>
+      - PROXIED=true
