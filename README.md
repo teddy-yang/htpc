@@ -10,4 +10,4 @@
 
 5. Configure Jackett, Radarr, Sonarr and qBitTorrent accordingly via [SERVICE].[YOUR DOMAIN] urls
 
-6. This repo uses docker-compose, change all neccesary sections in docker-compose.yml (adding VPN username/passowords, adding domain API key and domain name) then cd into the repo directory in your terminal and execute '$ docker-compose up -d'
+6. This repo uses docker-compose. Change all neccesary sections in docker-compose.yml (adding VPN username/passowords, adding domain API key and domain name) then cd into the repo directory in your terminal and execute '$ docker-compose up -d'
