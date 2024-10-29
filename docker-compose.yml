@@ -1,48 +1,42 @@
 version: '3'
 services:
   
-  #############
-  # AUTO HEAL #
-  #############
-  autoheal:
-    container_name: autoheal
-    image: willfarrell/autoheal:latest
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - AUTOHEAL_CONTAINER_LABEL=all
-    restart: always  
-    
-  ###################
-  # QBITTORRENT-VPN #
-  ###################
-  qbittorrent-vpn:
-    image: markusmcnugen/qbittorrentvpn:latest
-    container_name: "qbittorrent-vpn"
-    restart: "unless-stopped"
-    privileged: true
-    environment:
-      - "AUTOHEAL_CONTAINER_LABEL=true"
-      - "VPN_ENABLED=yes"
-      - "VPN_USERNAME=<YOUR NORDVPN VPN_USERNAME"
-      - "VPN_PASSWORD=<YOUR NORDVPN VPN_PASSWORD"
-      - "LAN_NETWORK=10.0.0.0/24"
-      - "NAME_SERVERS=1.1.1.1"
-      - "WEBUI_PORT_ENV=19091"
+  ##############
+  # DELUGE-VPN #
+  ##############
+
+  deluge:
+    container_name: deluge
+    image: binhex/arch-delugevpn
     ports:
-      - 19091:19091
-      - 8999:8999
-      - 8999:8999/udp
+      - "<YOUR LOCAL IP>:8112:8112"
+      - "<YOUR LOCAL IP>:8118:8118"
+      - "<YOUR LOCAL IP>:58846:58846"
+      - "<YOUR LOCAL IP>:58946:58946"
     volumes:
-      - "./config/qbittorrentvpn:/config:cached"
-      - "~/Downloads:/Downloads:cached"
-    healthcheck:
-      test: "ifconfig | grep ^tun0 > /dev/null"
-      interval: 30s
-      timeout: 5s
-      retries: 3
-    expose: 
-      - 19091
+      - ./config/deluge:/config
+      - ~/Downloads:/Downloads
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      VPN_ENABLED: yes
+      VPN_USER: <YOUR NORDVPN VPN_USERNAME>
+      VPN_PASS: <YOUR NORDVPN VPN_PASSWORD>
+      VPN_PROV: nordvpn
+      VPN_OPTIONS: 
+      STRICT_PORT_FORWARD: yes
+      ENABLE_PRIVOXY: yes
+      LAN_NETWORK: 10.0.0.0/0
+      NAME_SERVERS: 1.1.1.1, 1.0.0.1
+      DELUGE_DAEMON_LOG_LEVEL: info
+      DELUGE_WEB_LOG_LEVEL: info
+      ADDITIONAL_PORTS: 1234
+      DEBUG: false
+      UMASK: 000
+      PUID: 1000
+      PGID: 1000   
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
   
   ##########
   # RADARR #
