@@ -10,4 +10,4 @@
 
 5. This repo uses docker-compose. Change all neccesary sections in docker-compose.yml (adding NORDVPN VPN username/passowords - https://my.nordaccount.com/dashboard/nordvpn/ - Service credentials, adding domain API key and domain name and etc.) then cd into the repo directory in your terminal and execute '$ docker-compose up -d'
 
-5. Configure Jackett, Radarr, Sonarr, qBitTorrent and Portainer accordingly via [SERVICE].[YOUR DOMAIN] urls. Default backend will be your plex server.
+5. Configure Jackett, Radarr, Sonarr, Delugw and Portainer accordingly via [SERVICE].[YOUR DOMAIN] urls. Default backend will be your plex server.
